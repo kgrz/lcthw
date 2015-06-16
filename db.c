@@ -15,7 +15,7 @@ struct Address {
 };
 
 struct Database {
-    struct Address rows[MAX_ROWS];
+    struct Address *rows;
 };
 
 struct Connection {
@@ -92,10 +92,11 @@ void Database_write(struct Connection *conn)
 
 }
 
-void Database_create(struct Connection *conn)
+void Database_create(struct Connection *conn, int max_rows)
 {
+    printf("%d", max_rows);
     int i=0;
-    for (i = 0; i < MAX_ROWS; ++i)
+    for (i = 0; i < max_rows; ++i)
     {
 	struct Address addr = {.id = i, .set = 0};
 	conn->db->rows[i] = addr;
@@ -159,7 +160,10 @@ int main(int argc, char *argv[])
 
     switch(action) {
 	case 'c':
-	    Database_create(conn);
+	    if(argc < 3) die("Need max number of rows. Usage: a.out <dbfile> c <row count>\n", conn);
+	    int max_rows = atoi(argv[3]);
+	    if(!max_rows) die("Specify max number of rows.", conn);
+	    Database_create(conn, max_rows);
 	    Database_write(conn);
 	    break;
 
